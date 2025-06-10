@@ -277,28 +277,6 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-### Commercial Support
-For enterprise support, training, and consulting services, please contact the development team through the project repository.
-
-## 🔬 Research & Publications
-
-### Clinical Studies
-- **Phase I Clinical Trial Results** (Publication pending)
-- **Biomarker Validation Studies** (In progress)
-- **Healthcare Integration Case Studies** (Available in docs/research/)
-
-### Academic Collaborations
-- **Cancer Research Institutes**
-- **Academic Medical Centers**
-- **Pharmaceutical Research Organizations**
-
-### Technology Partners
-- **Cloud Infrastructure**: AWS/Azure
-- **AI/ML Platforms**: Various research collaborations
-- **Healthcare Integration**: EHR vendor partnerships
-
----
-
 **Disclaimer**: This platform is for research and clinical decision support purposes. All treatment decisions should be made in consultation with qualified healthcare professionals.
 
 For the latest updates and announcements, follow our project repository for the most current information.
