@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Genetic Risk Assessment Questionnaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .progress-container {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .questionnaire-type {
+            margin-bottom: 30px;
+        }
+        
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .type-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .type-option:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .type-option.selected {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+        
+        .type-option h3 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .type-option p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .question-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4f46e5;
+            display: none;
+        }
+        
+        .question-card.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-title {
+            font-size: 1.2rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .option:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+        
+        .option.selected {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .numeric-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .numeric-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3730a3;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .risk-summary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .risk-summary.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .risk-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .risk-level {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .risk-high { color: #fca5a5; }
+        .risk-moderate { color: #fbbf24; }
+        .risk-low { color: #86efac; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+        
+        .loading .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .interim-risks {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .interim-risks h4 {
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        
+        .risk-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .risk-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .risk-bar-fill.high { background: #ef4444; }
+        .risk-bar-fill.moderate { background: #f59e0b; }
+        .risk-bar-fill.low { background: #10b981; }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .type-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 Genetic Risk Assessment</h1>
+            <p>Advanced AI-powered questionnaire for personalized genetic and epigenetic risk analysis</p>
+        </div>
+        
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="progressText">Question 1 of ~15</span>
+                <span id="progressPercent">7%</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Questionnaire Type Selection -->
+            <div class="questionnaire-type" id="typeSelection">
+                <h2>Select Assessment Type</h2>
+                <p style="color: #64748b; margin-bottom: 20px;">Choose the type of genetic risk assessment you'd like to complete:</p>
+                
+                <div class="type-selector">
+                    <div class="type-option" data-type="genetic_screening">
+                        <h3>🧬 Genetic Screening</h3>
+                        <p>Focus on hereditary cancer genes and family history. Estimated time: 5-8 minutes</p>
+                    </div>
+                    <div class="type-option" data-type="epigenetic_assessment">
+                        <h3>🌱 Epigenetic Assessment</h3>
+                        <p>Analyze lifestyle and environmental factors affecting gene expression. Estimated time: 6-10 minutes</p>
+                    </div>
+                    <div class="type-option" data-type="comprehensive_assessment">
+                        <h3>🔬 Comprehensive Assessment</h3>
+                        <p>Complete genetic and epigenetic analysis for detailed risk profiling. Estimated time: 12-15 minutes</p>
+                    </div>
+                </div>
+                
+                <div class="button-group" style="margin-top: 30px;">
+                    <div></div>
+                    <button class="btn btn-primary" id="startQuestionnaire" disabled>Start Assessment</button>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="loading" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <p>Initializing your personalized questionnaire...</p>
+            </div>
+            
+            <!-- Question Display -->
+            <div class="question-card" id="questionCard">
+                <div class="question-title" id="questionTitle"></div>
+                <div class="question-options" id="questionOptions"></div>
+                
+                <!-- Interim Risk Display -->
+                <div class="interim-risks" id="interimRisks" style="display: none;">
+                    <h4>Current Risk Assessment</h4>
+                    <div id="riskBars"></div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="pauseBtn">Pause & Save</button>
+                    <button class="btn btn-primary" id="nextBtn" disabled>Next Question</button>
+                </div>
+            </div>
+            
+            <!-- Final Results -->
+            <div class="risk-summary" id="riskSummary">
+                <h2>🎯 Your Genetic Risk Assessment Results</h2>
+                <div id="resultsContent"></div>
+                
+                <div class="button-group" style="margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="window.print()">📄 Print Results</button>
+                    <button class="btn btn-primary" onclick="location.reload()">🔄 Start New Assessment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QuestionnaireApp {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:8000/api/v1/questionnaire';
+                this.sessionId = null;
+                this.currentQuestion = null;
+                this.responses = [];
+                this.selectedType = null;
+                this.progress = { questions_answered: 0, total_estimated: 15, progress_percentage: 0 };
+                
+                this.initializeEventListeners();
+            }
+            
+            initializeEventListeners() {
+                // Type selection
+                document.querySelectorAll('.type-option').forEach(option => {
+                    option.addEventListener('click', () => this.selectType(option.dataset.type));
+                });
+                
+                // Start questionnaire
+                document.getElementById('startQuestionnaire').addEventListener('click', () => this.startQuestionnaire());
+                
+                // Navigation buttons
+                document.getElementById('nextBtn').addEventListener('click', () => this.submitResponse());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pauseSession());
+            }
+            
+            selectType(type) {
+                this.selectedType = type;
+                
+                // Update UI
+                document.querySelectorAll('.type-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+                document.getElementById('startQuestionnaire').disabled = false;
+            }
+            
+            async startQuestionnaire() {
+                if (!this.selectedType) return;
+                
+                this.showLoading();
+                
+                try {
+                    // Start session
+                    const response = await this.apiCall('POST', '/start-session', {
+                        questionnaire_type: this.selectedType
+                    });
+                    
+                    this.sessionId = response.session_id;
+                    this.progress.total_estimated = response.total_estimated_questions;
+                    
+                    // Show progress bar
+                    document.getElementById('progressContainer').style.display = 'block';
+                    
+                    // Get first question
+                    await this.getNextQuestion();
+                    
+                } catch (error) {
+                    console.error('Error starting questionnaire:', error);
+                    alert('Failed to start questionnaire. Using demo mode.');
+                    this.startDemoMode();
+                }
+            }
+            
+            async getNextQuestion() {
+                try {
+                    const response = await this.apiCall('GET', `/questions/${this.sessionId}/next`);
+                    
+                    if (response.complete) {
+                        this.showResults(response.results);
+                    } else {
+                        this.currentQuestion = response.question;
+                        this.progress = response.progress;
+                        this.displayQuestion();
+                        this.updateProgress();
+                        
+                        if (response.interim_risks) {
+                            this.displayInterimRisks(response.interim_risks);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error getting next question:', error);
+                    this.getNextDemoQuestion();
+                }
+            }
+            
+            displayQuestion() {
+                document.getElementById('typeSelection').style.display = 'none';
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('questionCard').classList.add('active');
+                
+                // Set question title
+                document.getElementById('questionTitle').textContent = this.currentQuestion.question_text;
+                
+                // Clear previous options
+                const optionsContainer = document.getElementById('questionOptions');
+                optionsContainer.innerHTML = '';
+                
+                // Create options based on question type
+                switch (this.currentQuestion.question_type) {
+                    case 'multiple_choice':
+                        this.createMultipleChoiceOptions(optionsContainer);
+                        break;
+                    case 'multi_select':
+                        this.createMultiSelectOptions(optionsContainer);
+                        break;
+                    case 'boolean':
+                        this.createBooleanOptions(optionsContainer);
+                        break;
+                    case 'numeric':
+                        this.createNumericInput(optionsContainer);
+                        break;
+                    default:
+                        this.createTextInput(optionsContainer);
+                }
+                
+                document.getElementById('nextBtn').disabled = true;
+            }
+            
+            createMultipleChoiceOptions(container) {
+                this.currentQuestion.options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                        optionDiv.classList.add('selected');
+                        this.selectedResponse = option;
+                        document.getElementById('nextBtn').disabled = false;
+                    });
+                    container.appendChild(optionDiv);
+                });
+            }
+            
+            createMultiSelectOptions(container) {
+                this.selectedResponse = [];
+                this.currentQuestion.options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            this.selectedResponse.push(option);
+                        } else {
+                            this.selectedResponse = this.selectedResponse.filter(r => r !== option);
+                        }
+                        document.getElementById('nextBtn').disabled = this.selectedResponse.length === 0;
+                    });
+                    
+                    optionDiv.appendChild(checkbox);
+                    optionDiv.appendChild(document.createTextNode(option));
+                    container.appendChild(optionDiv);
+                });
+            }
+            
+            createBooleanOptions(container) {
+                ['Yes', 'No'].forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    optionDiv.textContent = option;
+                    optionDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                        optionDiv.classList.add('selected');
+                        this.selectedResponse = option === 'Yes';
+                        document.getElementById('nextBtn').disabled = false;
+                    });
+                    container.appendChild(optionDiv);
+                });
+            }
+            
+            createNumericInput(container) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'numeric-input';
+                input.placeholder = 'Enter a number...';
+                input.addEventListener('input', () => {
+                    this.selectedResponse = parseFloat(input.value);
+                    document.getElementById('nextBtn').disabled = !input.value;
+                });
+                container.appendChild(input);
+            }
+            
+            createTextInput(container) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'numeric-input';
+                input.placeholder = 'Enter your response...';
+                input.addEventListener('input', () => {
+                    this.selectedResponse = input.value;
+                    document.getElementById('nextBtn').disabled = !input.value.trim();
+                });
+                container.appendChild(input);
+            }
+            
+            async submitResponse() {
+                const responseData = {
+                    question_id: this.currentQuestion.question_id,
+                    response: this.selectedResponse,
+                    confidence: 1.0
+                };
+                
+                this.responses.push(responseData);
+                
+                try {
+                    const response = await this.apiCall('POST', `/questions/${this.sessionId}/respond`, responseData);
+                    
+                    if (response.complete) {
+                        this.showResults(response.final_results);
+                    } else {
+                        this.currentQuestion = response.next_question;
+                        this.progress = response.progress;
+                        this.displayQuestion();
+                        this.updateProgress();
+                        
+                        if (response.updated_risks) {
+                            this.displayInterimRisks(response.updated_risks);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error submitting response:', error);
+                    this.getNextDemoQuestion();
+                }
+            }
+            
+            updateProgress() {
+                const percent = Math.round(this.progress.progress_percentage);
+                document.getElementById('progressFill').style.width = `${percent}%`;
+                document.getElementById('progressText').textContent = 
+                    `Question ${this.progress.questions_answered + 1} of ~${this.progress.total_estimated}`;
+                document.getElementById('progressPercent').textContent = `${percent}%`;
+            }
+            
+            displayInterimRisks(risks) {
+                const container = document.getElementById('riskBars');
+                container.innerHTML = '';
+                
+                Object.entries(risks).forEach(([riskType, data]) => {
+                    if (typeof data === 'object' && data.risk_score !== undefined) {
+                        const riskDiv = document.createElement('div');
+                        riskDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="font-size: 0.9rem; color: #374151;">${riskType.replace(/_/g, ' ').toUpperCase()}</span>
+                                <span style="font-size: 0.9rem; color: #6b7280;">${Math.round(data.risk_score * 100)}%</span>
+                            </div>
+                            <div class="risk-bar">
+                                <div class="risk-bar-fill ${this.getRiskLevel(data.risk_score)}" style="width: ${data.risk_score * 100}%"></div>
+                            </div>
+                        `;
+                        container.appendChild(riskDiv);
+                    }
+                });
+                
+                document.getElementById('interimRisks').style.display = 'block';
+            }
+            
+            getRiskLevel(score) {
+                if (score > 0.6) return 'high';
+                if (score > 0.3) return 'moderate';
+                return 'low';
+            }
+            
+            showResults(results) {
+                document.getElementById('questionCard').style.display = 'none';
+                document.getElementById('progressContainer').style.display = 'none';
+                
+                const resultsContainer = document.getElementById('resultsContent');
+                resultsContainer.innerHTML = `
+                    <p style="margin-bottom: 20px;">Assessment completed on ${new Date().toLocaleDateString()}</p>
+                    <div class="risk-item">
+                        <div class="risk-level">Overall Risk Score: ${Math.round((results.overall_risk_score || 0.2) * 100)}%</div>
+                        <p>Clinical Priority: ${results.clinical_urgency || 'Routine'}</p>
+                    </div>
+                    <div class="risk-item">
+                        <div class="risk-level">Genetic Factors Analyzed: ${(results.genetic_predictions || []).length}</div>
+                        <div class="risk-level">Epigenetic Factors Analyzed: ${(results.epigenetic_factors || []).length}</div>
+                    </div>
+                    <div class="risk-item">
+                        <div class="risk-level">Recommendations:</div>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            ${(results.next_steps || ['Consult with a genetic counselor', 'Continue regular screening']).map(step => `<li>${step}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                document.getElementById('riskSummary').classList.add('active');
+            }
+            
+            async pauseSession() {
+                try {
+                    const response = await this.apiCall('POST', `/sessions/${this.sessionId}/pause`);
+                    alert(`Session paused. Resume token: ${response.resume_token}\n\nSave this token to resume later.`);
+                } catch (error) {
+                    console.error('Error pausing session:', error);
+                    alert('Session paused (demo mode)');
+                }
+            }
+            
+            showLoading() {
+                document.getElementById('typeSelection').style.display = 'none';
+                document.getElementById('loadingState').style.display = 'block';
+            }
+            
+            async apiCall(method, endpoint, data = null) {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(`${this.apiBaseUrl}${endpoint}`, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            }
+            
+            // Demo mode for when API is not available
+            startDemoMode() {
+                this.sessionId = 'demo-session';
+                this.demoQuestions = [
+                    {
+                        question_id: 'demo_age',
+                        question_text: 'What is your current age?',
+                        question_type: 'numeric'
+                    },
+                    {
+                        question_id: 'demo_family_history',
+                        question_text: 'Has anyone in your family been diagnosed with cancer?',
+                        question_type: 'boolean'
+                    },
+                    {
+                        question_id: 'demo_lifestyle',
+                        question_text: 'Do you currently smoke or have you ever smoked tobacco products?',
+                        question_type: 'multiple_choice',
+                        options: ['Never smoked', 'Former smoker', 'Current smoker']
+                    }
+                ];
+                this.demoQuestionIndex = 0;
+                document.getElementById('progressContainer').style.display = 'block';
+                this.getNextDemoQuestion();
+            }
+            
+            getNextDemoQuestion() {
+                if (this.demoQuestionIndex < this.demoQuestions.length) {
+                    this.currentQuestion = this.demoQuestions[this.demoQuestionIndex];
+                    this.progress = {
+                        questions_answered: this.demoQuestionIndex,
+                        total_estimated: this.demoQuestions.length,
+                        progress_percentage: (this.demoQuestionIndex / this.demoQuestions.length) * 100
+                    };
+                    this.displayQuestion();
+                    this.updateProgress();
+                    this.demoQuestionIndex++;
+                } else {
+                    this.showResults({
+                        overall_risk_score: 0.25,
+                        clinical_urgency: 'Routine',
+                        genetic_predictions: [],
+                        epigenetic_factors: [],
+                        next_steps: ['Consult with a genetic counselor', 'Continue regular screening', 'Consider lifestyle modifications']
+                    });
+                }
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new QuestionnaireApp();
+        });
+    </script>
+</body>
+</html>
